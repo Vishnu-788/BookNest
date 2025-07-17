@@ -1,0 +1,50 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Virtual environment
+myenv/
+venv/
+.env/
+.venv/
+
+# Environment files
+.env
+*.env
+
+# IDE/Editor settings
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Pytest / Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# Logs
+*.log
+
+# Bytecode & build
+*.egg-info/
+build/
+dist/
+
+# Database
+*.db
+*.sqlite3
+
+# Docker (if using)
+docker-compose.override.yml
+
+# FastAPI related
+__pypackages__/
