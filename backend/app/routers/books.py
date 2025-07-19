@@ -4,11 +4,7 @@ from sqlalchemy.orm import Session
 from app import schemas, crud
 from typing import Annotated, List
 
-router = APIRouter(
-    prefix="/books",
-    tags=["books"]
-)
-
+router = APIRouter()
 
 @router.get("/", response_model=List[schemas.book.BookResponse], status_code=status.HTTP_200_OK)
 def get_books(db: Annotated[Session, Depends(get_db)]):

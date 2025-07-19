@@ -6,3 +6,8 @@ class UserCreate(BaseModel):
     email: str
     password: str
     role: RoleEnum = RoleEnum.READER
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
+    role: RoleEnum = RoleEnum.READER
