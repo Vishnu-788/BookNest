@@ -2,6 +2,8 @@ import re
 from sqlalchemy.orm import Session
 from app import crud, schemas
 from app.core import security
+from datetime import timedelta
+
 
 def validate_username(username: str) -> str:
         # Username constraints
@@ -28,7 +30,23 @@ def register_user(request: schemas.auth.UserCreate, db: Session):
     hashed_password = security.Security.hash_password(request.password)
     request.password = hashed_password
 
-    return crud.user.create(request, db)
+    user = crud.user.create(request, db)
+
+    if not user:
+        raise ValueError("User creation failed")
+    
+    access_token_expires = timedelta(minutes=30)
+    access_token = security.create_access_token(
+        data={"sub": user.username}, expires_delta=access_token_expires
+    )
+
+    return schemas.auth.UserAuthResponse(
+        token=access_token,
+        token_type="bearer",
+        username=user.username,
+        email=user.email,
+        role=user.role
+    )
 
 def login_user(request: schemas.auth.UserLogin, db: Session):
     if not request.username or not request.password:
@@ -44,4 +62,15 @@ def login_user(request: schemas.auth.UserLogin, db: Session):
     if not security.Security.verify_password(request.password, user.password):
         raise ValueError("incorrect password")
     
-    return user
+    access_token_expires = timedelta(minutes=30)
+    access_token = security.create_access_token(
+        data={"sub": user.username}, expires_delta=access_token_expires
+    )
+    return schemas.auth.UserAuthResponse(
+        token=access_token,
+        token_type="bearer",
+        username=user.username,
+        email=user.email,
+        role=user.role
+    )
+
