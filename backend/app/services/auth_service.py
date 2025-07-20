@@ -1,4 +1,5 @@
 import re
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from app import crud, schemas
 from app.core import security
@@ -41,14 +42,14 @@ def register_user(request: schemas.auth.UserCreate, db: Session):
     )
 
     return schemas.auth.UserAuthResponse(
-        token=access_token,
+        access_token=access_token,
         token_type="bearer",
         username=user.username,
         email=user.email,
         role=user.role
     )
 
-def login_user(request: schemas.auth.UserLogin, db: Session):
+def login_user(request: OAuth2PasswordRequestForm, db: Session):
     if not request.username or not request.password:
         raise ValueError("Username and password are required")
     request.username = request.username.lower()
@@ -67,7 +68,7 @@ def login_user(request: schemas.auth.UserLogin, db: Session):
         data={"sub": user.username}, expires_delta=access_token_expires
     )
     return schemas.auth.UserAuthResponse(
-        token=access_token,
+        access_token=access_token,
         token_type="bearer",
         username=user.username,
         email=user.email,

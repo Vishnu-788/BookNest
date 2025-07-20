@@ -2,11 +2,15 @@ from fastapi import APIRouter, status, Depends
 from app.database import get_db
 from sqlalchemy.orm import Session
 from app import schemas, crud
+from app.core import security
 from typing import Annotated, List
 
-router = APIRouter()
 
-@router.get("/", response_model=List[schemas.book.BookResponse], status_code=status.HTTP_200_OK)
+router = APIRouter(
+    dependencies=[Depends(security.get_current_user)]
+)
+
+@router.get("/", response_model=List[schemas.book.BookResponse],status_code=status.HTTP_200_OK)
 def get_books(db: Annotated[Session, Depends(get_db)]):
     return crud.book.get_all(db)
 

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app import schemas, services
@@ -16,7 +17,7 @@ def register_user(request: schemas.auth.UserCreate, db: Annotated[Session, Depen
 
     
 @router.post("/login")
-def login_user(request: schemas.auth.UserLogin, db: Annotated[Session, Depends(get_db)]):
+def login_user(request: Annotated[OAuth2PasswordRequestForm, Depends()], db: Annotated[Session, Depends(get_db)]):
     try:
         return services.auth_service.login_user(request, db)
     except ValueError as e:
