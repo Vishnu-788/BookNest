@@ -1,0 +1,41 @@
+from fastapi import UploadFile
+from app import schemas, crud
+from sqlalchemy.orm import Session
+from typing import Optional
+import uuid
+import shutil
+import os
+
+STATIC_FOLDER = "static/images"
+
+async def create_book_with_image(
+    title: str,
+    author: str,
+    description: Optional[str],
+    in_stock: Optional[bool],
+    stock_count: Optional[int],
+    image: UploadFile,
+    db: Session 
+):
+    """
+    Input: Takes the image and other data as form input
+    Returns: other form data and image url passes it to crud
+    Note: In db only the url is stored. The image is stored in the /static/images directory
+    """
+
+    filename = f"{uuid.uuid4()}.{image.filename.split('.')[-1]}"
+    file_path = f"{STATIC_FOLDER}/{filename}"
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(image.file, buffer)
+
+    # Creating a pydantic model here
+    book_data = schemas.book.BookCreate(
+        title=title,
+        description=description,
+        author=author,
+        in_stock=in_stock,
+        stock_count=stock_count,
+        img_url=f"/static/images/{filename}"
+    )
+
+    return crud.book.create(book_data, db)

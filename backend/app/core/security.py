@@ -61,9 +61,9 @@ def verify_token(token: str, credentials_exception) -> schemas.auth.TokenData:
     Output: TokenData object with username if valid
     Raises: credentials_exception if token is invalid/expired
     """
-  
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception

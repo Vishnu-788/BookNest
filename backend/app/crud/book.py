@@ -17,7 +17,6 @@ def get_book(id: int, db: Session):
     book = db.query(models.book.Book).filter(models.book.Book.id == id).first()
     if not book:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book not found")
-
     return book 
 
 def update_stock(id: int, request: schemas.book.StockUpdate, db: Session):
