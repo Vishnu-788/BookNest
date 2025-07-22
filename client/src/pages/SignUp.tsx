@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { API_ENDPOINTS } from "../utils/api";
 import "./styles/auth-form.css";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuthContext";
 
 type FormData = {
   username: string;
@@ -20,23 +21,30 @@ const SignUp: React.FC = () => {
 
   const [error, setError] = useState<string | null>();
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (formData: FormData) => {
     try {
       const response = await fetch(API_ENDPOINTS.SIGN_UP, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(formData),
       });
+      const data = await response.json();
       if (!response.ok) {
-        const errorData = await response.json();
-        setError(errorData.message);
+        setError(data.message);
       }
 
-      const result = await response.json();
-      console.log(result);
+      console.log(data);
+      const userData = {
+        username: data.username,
+        email: data.email,
+        role: data.role,
+      };
+      const token = data.access_token;
+      login(userData, token);
       navigate("/");
     } catch (err) {
       console.error("Error posting", err);

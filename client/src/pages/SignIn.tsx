@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { API_ENDPOINTS } from "../utils/api";
 import "./styles/auth-form.css";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuthContext";
 
 type SignInForm = {
   username: string;
@@ -19,6 +20,7 @@ const SignIn: React.FC = () => {
 
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>();
+  const { login } = useAuth();
 
   const onSubmit = async (data: SignInForm) => {
     const formData = new FormData();
@@ -32,13 +34,20 @@ const SignIn: React.FC = () => {
         body: formData,
       });
 
-      const result = await response.json();
+      const data = await response.json();
 
       if (!response.ok) {
         console.error("Error in not ok");
-        setError(result.detail);
+        setError(data.detail);
       } else {
-        console.log("Response: ", result);
+        console.log("Response: ", data);
+        const userData = {
+          username: data.username,
+          email: data.email,
+          role: data.role,
+        };
+        const token = data.access_token;
+        login(userData, token);
         navigate("/");
       }
     } catch (err) {
