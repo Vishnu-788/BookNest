@@ -1,7 +1,9 @@
-import React from "react";
-import { Form, Button } from "react-bootstrap";
+import React, { useState } from "react";
+import { Form, Button, Alert } from "react-bootstrap";
 import { useForm } from "react-hook-form";
+import { API_ENDPOINTS } from "../utils/api";
 import "./styles/auth-form.css";
+import { useNavigate } from "react-router-dom";
 
 type FormData = {
   username: string;
@@ -16,8 +18,31 @@ const SignUp: React.FC = () => {
     formState: { errors },
   } = useForm<FormData>();
 
-  const onSubmit = (data: FormData) => {
-    console.log("Data: ", data);
+  const [error, setError] = useState<string | null>();
+  const navigate = useNavigate();
+
+  const onSubmit = async (data: FormData) => {
+    try {
+      const response = await fetch(API_ENDPOINTS.SIGN_UP, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        setError(errorData.message);
+      }
+
+      const result = await response.json();
+      console.log(result);
+      navigate("/");
+    } catch (err) {
+      console.error("Error posting", err);
+
+      setError("Something went wrong, Try agin later");
+    }
   };
 
   return (
@@ -32,6 +57,7 @@ const SignUp: React.FC = () => {
             Create your account and join the library!
           </p>
 
+          {error && <Alert variant="danger">error</Alert>}
           <Form onSubmit={handleSubmit(onSubmit)}>
             {/* Username */}
             <Form.Group className="mb-3">

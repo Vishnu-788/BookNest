@@ -3,6 +3,7 @@ import { Form, Button, Alert } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { API_ENDPOINTS } from "../utils/api";
 import "./styles/auth-form.css";
+import { useNavigate } from "react-router-dom";
 
 type SignInForm = {
   username: string;
@@ -16,6 +17,7 @@ const SignIn: React.FC = () => {
     formState: { errors },
   } = useForm<SignInForm>();
 
+  const navigate = useNavigate();
   const [error, setError] = useState<string | null>();
 
   const onSubmit = async (data: SignInForm) => {
@@ -24,18 +26,25 @@ const SignIn: React.FC = () => {
     formData.append("username", data.username);
     formData.append("password", data.password);
 
-    const response = await fetch(API_ENDPOINTS.SIGN_IN, {
-      method: "POST",
-      body: formData,
-    });
+    try {
+      const response = await fetch(API_ENDPOINTS.SIGN_IN, {
+        method: "POST",
+        body: formData,
+      });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      setError(errorData.message);
+      const result = await response.json();
+
+      if (!response.ok) {
+        console.error("Error in not ok");
+        setError(result.detail);
+      } else {
+        console.log("Response: ", result);
+        navigate("/");
+      }
+    } catch (err) {
+      console.error("Error fetching, : ", err);
+      setError("Something went wrong. Try again later");
     }
-
-    const result = await response.json();
-    console.log(result);
   };
 
   return (
