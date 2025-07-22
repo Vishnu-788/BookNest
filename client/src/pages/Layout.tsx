@@ -1,10 +1,15 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
+import AppNavbar from "../components/header/AppNavBar";
 
 const Layout: React.FC = () => {
   return (
     <>
-      <h1>Header</h1>
+      <header>
+        <nav>
+          <AppNavbar />
+        </nav>
+      </header>
       <main>
         <Outlet />
       </main>

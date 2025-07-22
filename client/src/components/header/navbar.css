@@ -1,0 +1,7 @@
+.nav-link:hover {
+  color: var(--primary-color) !important;
+}
+.navbar {
+  padding-left: 3.5rem !important;
+  padding-right: 3.5rem !important;
+}

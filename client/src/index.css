@@ -5,3 +5,9 @@
   --text-color: #1f2937; /* Dark Gray for text */
   --accent-color: #ffd700; /* Optional accent (golden) for highlights */
 }
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-family: "Segoe UI", Tahoma, sans-serif;
+}
