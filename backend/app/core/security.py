@@ -6,8 +6,10 @@ from typing import Annotated
 from sqlalchemy.orm import Session
 import jwt
 from app import schemas, crud
+from app.models.user import RoleEnum
 from app.database import get_db
 from app.core.config import get_settings
+
 
 # Load environment variables
 settings = get_settings()
@@ -93,4 +95,32 @@ def get_current_user(
     user = crud.user.get_user_by_username(username=token_data.username, db=db)
     if user is None:
         raise credentials_exception
+    return user
+
+def get_librarian(    
+    token: Annotated[str, Depends(oauth2_scheme)],
+    db: Session = Depends(get_db)
+):
+    """
+    Checks if the user role is "librarian" else raise an exception
+    """
+    user = get_current_user(token, db)
+    if user.role != RoleEnum.LIBRARIAN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access Forbidden"
+        )
+    return user
+
+def get_reader(    
+    token: Annotated[str, Depends(oauth2_scheme)],
+    db: Session = Depends(get_db)
+):
+    # raise some kind of exception here that only librarians can accesss this route
+    user = get_current_user(token, db)
+    if user.role != RoleEnum.READER:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access Forbidden"
+        )
     return user

@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import Optional
 
 class BookCreate(BaseModel):
+    lib_id: int
     title: str
     author: str
     description: Optional[str] = None

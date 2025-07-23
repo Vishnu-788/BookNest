@@ -15,7 +15,8 @@ async def create_book_with_image(
     in_stock: Optional[bool],
     stock_count: Optional[int],
     image: UploadFile,
-    db: Session 
+    db: Session,
+    user: schemas.auth.UserAuthResponse
 ):
     """
     Input: Takes the image and other data as form input
@@ -30,6 +31,7 @@ async def create_book_with_image(
 
     # Creating a pydantic model here
     book_data = schemas.book.BookCreate(
+        lib_id=user.id,
         title=title,
         description=description,
         author=author,
