@@ -1,0 +1,42 @@
+.open-modal-btn {
+  background: var(--primary-color);
+  border: none;
+  font-weight: bold;
+  border-radius: 8px;
+  padding: 10px 20px;
+}
+
+.open-modal-btn:hover {
+  background: var(--secondary-color);
+}
+
+.custom-form label {
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.custom-form input,
+.custom-form textarea {
+  border-radius: 8px;
+  border: 1px solid var(--secondary-color);
+}
+
+.custom-form input:focus,
+.custom-form textarea:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 5px var(--secondary-color);
+}
+
+.submit-btn {
+  background-color: var(--primary-color);
+  border: none;
+  padding: 10px 25px;
+  font-size: 1rem;
+  border-radius: 8px;
+  color: #fff;
+  transition: background 0.3s;
+}
+
+.submit-btn:hover {
+  background-color: var(--secondary-color);
+}

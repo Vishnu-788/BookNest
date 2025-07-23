@@ -1,8 +1,8 @@
 import React from "react";
 import { Navbar, Nav } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import "./navbar.css";
-import { useAuth } from "../../hooks/useAuthContext";
+import "./style.css";
+import { useAuth } from "../../../hooks/useAuthContext";
 
 const AppNavbar: React.FC = () => {
   const { user, logout } = useAuth();
@@ -56,7 +56,13 @@ const AppNavbar: React.FC = () => {
             </>
           ) : (
             <>
-              <Nav.Link style={{ color: "var(--text-color)" }}>Books</Nav.Link>
+              <Nav.Link
+                as={Link}
+                to={"/librarian/signup"}
+                style={{ color: "var(--text-color)" }}
+              >
+                Become a librarian
+              </Nav.Link>
               <Nav.Link
                 as={Link}
                 to={"/signin"}

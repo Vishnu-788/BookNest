@@ -1,8 +1,8 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
-import AppNavbar from "../components/header/AppNavBar";
+import AppNavbar from "../components/librarian/NavBar";
 
-const Layout: React.FC = () => {
+const LibrarianLayout: React.FC = () => {
   return (
     <>
       <header>
@@ -13,9 +13,8 @@ const Layout: React.FC = () => {
       <main>
         <Outlet />
       </main>
-      <h1>Footer</h1>
     </>
   );
 };
 
-export default Layout;
+export default LibrarianLayout;

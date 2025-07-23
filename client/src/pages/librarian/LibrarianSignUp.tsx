@@ -1,58 +1,58 @@
 import React, { useState } from "react";
 import { Form, Button, Alert } from "react-bootstrap";
 import { useForm } from "react-hook-form";
-import { API_ENDPOINTS } from "../utils/api";
-import "./styles/auth-form.css";
+import { API_ENDPOINTS } from "../../utils/api";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuthContext";
+import { useAuth } from "../../hooks/useAuthContext";
+import { Link } from "react-router-dom";
+import "./styles/auth-form.css";
 
-type SignInForm = {
+type FormData = {
   username: string;
+  email: string;
   password: string;
+  role: string;
 };
 
-const SignIn: React.FC = () => {
+const LibrarianSignUp: React.FC = () => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<SignInForm>();
+  } = useForm<FormData>();
 
-  const navigate = useNavigate();
   const [error, setError] = useState<string | null>();
+  const navigate = useNavigate();
   const { login } = useAuth();
 
-  const onSubmit = async (data: SignInForm) => {
-    const formData = new FormData();
-
-    formData.append("username", data.username);
-    formData.append("password", data.password);
-
+  const onSubmit = async (formData: FormData) => {
+    formData.role = "librarian";
     try {
-      const response = await fetch(API_ENDPOINTS.SIGN_IN, {
+      const response = await fetch(API_ENDPOINTS.SIGN_UP, {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       });
-
       const data = await response.json();
-
       if (!response.ok) {
-        console.error("Error in not ok");
-        setError(data.detail);
-      } else {
-        console.log("Response: ", data);
-        const userData = {
-          username: data.username,
-          email: data.email,
-          role: data.role,
-        };
-        const token = data.access_token;
-        login(userData, token);
-        navigate("/");
+        setError(data.message);
       }
+
+      console.log(data);
+      const userData = {
+        username: data.username,
+        email: data.email,
+        role: data.role,
+      };
+      const token = data.access_token;
+      login(userData, token);
+      navigate("/librarian");
     } catch (err) {
-      console.error("Error fetching, : ", err);
-      setError("Something went wrong. Try again later");
+      console.error("Error posting", err);
+
+      setError("Something went wrong, Try agin later");
     }
   };
 
@@ -62,19 +62,20 @@ const SignIn: React.FC = () => {
         {/* Left Panel */}
         <div className="auth-left">
           <h2 style={{ color: "var(--primary-color)", fontWeight: "bold" }}>
-            Sign In
+            Sign Up
           </h2>
           <p style={{ color: "var(--text-color)" }}>
-            Welcome back! Please sign in to your account.
+            Create your account and join the library!
           </p>
-          {error && <Alert variant="danger">{error}</Alert>}
+
+          {error && <Alert variant="danger">error</Alert>}
           <Form onSubmit={handleSubmit(onSubmit)}>
             {/* Username */}
             <Form.Group className="mb-3">
               <Form.Label>Username</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Enter Username"
+                placeholder="Enter your username"
                 isInvalid={!!errors.username}
                 {...register("username", {
                   required: "Username is required",
@@ -86,6 +87,22 @@ const SignIn: React.FC = () => {
               />
               <Form.Control.Feedback type="invalid">
                 {errors.username?.message}
+              </Form.Control.Feedback>
+            </Form.Group>
+
+            {/* Email */}
+            <Form.Group className="mb-3">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="email"
+                placeholder="Enter email"
+                isInvalid={!!errors.email}
+                {...register("email", {
+                  required: "Email is required",
+                })}
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.email?.message}
               </Form.Control.Feedback>
             </Form.Group>
 
@@ -118,22 +135,22 @@ const SignIn: React.FC = () => {
               }}
               className="w-100"
             >
-              Sign In
+              Sign Up
             </Button>
           </Form>
 
           <p className="mt-3">
-            Don't have an account? <a href="/signup">Sign Up</a>
+            Already have an account? <Link to="/librarian/signin">SignIn</Link>
           </p>
         </div>
 
         {/* Right Panel */}
         <div className="auth-right">
-          <span>📚 Library Illustration</span>
+          <span>✨ Welcome to the Library!</span>
         </div>
       </div>
     </div>
   );
 };
 
-export default SignIn;
+export default LibrarianSignUp;

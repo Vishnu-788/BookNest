@@ -1,55 +1,59 @@
 import React, { useState } from "react";
 import { Form, Button, Alert } from "react-bootstrap";
 import { useForm } from "react-hook-form";
-import { API_ENDPOINTS } from "../utils/api";
+import { API_ENDPOINTS } from "../../utils/api";
 import "./styles/auth-form.css";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuthContext";
+import { useAuth } from "../../hooks/useAuthContext";
+import { Link } from "react-router-dom";
 
-type FormData = {
+type SignInForm = {
   username: string;
-  email: string;
   password: string;
 };
 
-const SignUp: React.FC = () => {
+const LibrarianSignIn: React.FC = () => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>();
+  } = useForm<SignInForm>();
 
-  const [error, setError] = useState<string | null>();
   const navigate = useNavigate();
   const { login } = useAuth();
+  const [error, setError] = useState<string | null>();
 
-  const onSubmit = async (formData: FormData) => {
+  const onSubmit = async (data: SignInForm) => {
+    const formData = new FormData();
+
+    formData.append("username", data.username);
+    formData.append("password", data.password);
+
     try {
-      const response = await fetch(API_ENDPOINTS.SIGN_UP, {
+      const response = await fetch(API_ENDPOINTS.SIGN_IN, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+        body: formData,
       });
+
       const data = await response.json();
+
       if (!response.ok) {
-        setError(data.message);
+        console.error("Error in not ok");
+        setError(data.detail);
+      } else {
+        console.log("Response: ", data);
+        const userData = {
+          username: data.username,
+          email: data.email,
+          role: data.role,
+        };
+        const token = data.access_token;
+        login(userData, token);
+        navigate("/librarian");
       }
-
-      console.log(data);
-      const userData = {
-        username: data.username,
-        email: data.email,
-        role: data.role,
-      };
-      const token = data.access_token;
-      login(userData, token);
-      navigate("/");
     } catch (err) {
-      console.error("Error posting", err);
-
-      setError("Something went wrong, Try agin later");
+      console.error("Error fetching, : ", err);
+      setError("Something went wrong. Try again later");
     }
   };
 
@@ -59,20 +63,19 @@ const SignUp: React.FC = () => {
         {/* Left Panel */}
         <div className="auth-left">
           <h2 style={{ color: "var(--primary-color)", fontWeight: "bold" }}>
-            Sign Up
+            Sign In
           </h2>
           <p style={{ color: "var(--text-color)" }}>
-            Create your account and join the library!
+            Welcome back! Please sign in to your account.
           </p>
-
-          {error && <Alert variant="danger">error</Alert>}
+          {error && <Alert variant="danger">{error}</Alert>}
           <Form onSubmit={handleSubmit(onSubmit)}>
             {/* Username */}
             <Form.Group className="mb-3">
               <Form.Label>Username</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Enter your username"
+                placeholder="Enter Username"
                 isInvalid={!!errors.username}
                 {...register("username", {
                   required: "Username is required",
@@ -84,22 +87,6 @@ const SignUp: React.FC = () => {
               />
               <Form.Control.Feedback type="invalid">
                 {errors.username?.message}
-              </Form.Control.Feedback>
-            </Form.Group>
-
-            {/* Email */}
-            <Form.Group className="mb-3">
-              <Form.Label>Email</Form.Label>
-              <Form.Control
-                type="email"
-                placeholder="Enter email"
-                isInvalid={!!errors.email}
-                {...register("email", {
-                  required: "Email is required",
-                })}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.email?.message}
               </Form.Control.Feedback>
             </Form.Group>
 
@@ -132,22 +119,22 @@ const SignUp: React.FC = () => {
               }}
               className="w-100"
             >
-              Sign Up
+              Sign In
             </Button>
           </Form>
 
           <p className="mt-3">
-            Already have an account? <a href="/signin">Sign In</a>
+            Don't have an account? <Link to="/librarian/signup">Signup</Link>
           </p>
         </div>
 
         {/* Right Panel */}
         <div className="auth-right">
-          <span>✨ Welcome to the Library!</span>
+          <span>📚 Library Illustration</span>
         </div>
       </div>
     </div>
   );
 };
 
-export default SignUp;
+export default LibrarianSignIn;
