@@ -43,7 +43,7 @@ async def create_book_with_image(
     return crud.book.create(book_data, db)
 
 def get_all_books(user: schemas.auth.UserAuthResponse | None, db: Session):
-    if user.role == models.user.RoleEnum.LIBRARIAN:
+    if user and user.role == models.user.RoleEnum.LIBRARIAN:
         return crud.book.get_all_books_by_librarian(user.id, db)
     return crud.book.get_all_books(db)
 

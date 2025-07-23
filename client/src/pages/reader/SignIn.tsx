@@ -5,6 +5,7 @@ import { API_ENDPOINTS } from "../../utils/api";
 import "./styles/auth-form.css";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuthContext";
+import { Link } from "react-router-dom";
 
 type SignInForm = {
   username: string;
@@ -123,7 +124,7 @@ const SignIn: React.FC = () => {
           </Form>
 
           <p className="mt-3">
-            Don't have an account? <a href="/signup">Sign Up</a>
+            Don't have an account? <Link to="/signup">SignUp</Link>
           </p>
         </div>
 

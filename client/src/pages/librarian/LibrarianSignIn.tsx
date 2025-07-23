@@ -124,7 +124,7 @@ const LibrarianSignIn: React.FC = () => {
           </Form>
 
           <p className="mt-3">
-            Don't have an account? <Link to="/librarian/signup">Signup</Link>
+            Don't have an account? <Link to="/library/signup">Signup</Link>
           </p>
         </div>
 

@@ -13,16 +13,8 @@ class BookCreate(BaseModel):
 class StockUpdate(BaseModel):
     stock: int
 
-class BookResponse(BaseModel):
-    id: int
-    title: str
-    author: str
-    img_url: str
-    model_config = {
-        "from_attributes": True
-    }
     
-class BookDetailResponse(BaseModel):
+class BookResponse(BaseModel):
     id: int
     title: str
     description: Optional[str]

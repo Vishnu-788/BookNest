@@ -140,7 +140,7 @@ const LibrarianSignUp: React.FC = () => {
           </Form>
 
           <p className="mt-3">
-            Already have an account? <Link to="/librarian/signin">SignIn</Link>
+            Already have an account? <Link to="/library/signin">SignIn</Link>
           </p>
         </div>
 

@@ -22,7 +22,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # OAuth2 scheme for extracting Bearer token from Authorization header
 # tokenUrl is for OpenAPI (Swagger) docs only, so Swagger knows where to get token
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
 
 # Exception to raise when credentials are invalid
 
@@ -131,6 +131,7 @@ def get_current_user_optional(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db)
 ): 
+    print(token)
     if token is None:
         return None
     user = get_current_user(token, db)

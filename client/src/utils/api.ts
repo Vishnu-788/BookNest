@@ -4,4 +4,5 @@ export const API_ENDPOINTS = {
   SIGN_IN: `${BASE_URL}/auth/login`,
   SIGN_UP: `${BASE_URL}/auth/register`,
   BOOK_CREATE: `${BASE_URL}/books/create`,
+  BOOKS: `${BASE_URL}/books`,
 };

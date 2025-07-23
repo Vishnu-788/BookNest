@@ -16,7 +16,7 @@ def get_books(
 ):
     return services.book_service.get_all_books(user, db)
 
-@router.get("/{book_id}", response_model=schemas.book.BookDetailResponse, status_code=status.HTTP_200_OK)
+@router.get("/{book_id}", response_model=schemas.book.BookResponse, status_code=status.HTTP_200_OK)
 def get_book_by_id(book_id: int, db: Annotated[Session, Depends(get_db)]):
     return crud.book.get_book(book_id, db)
 

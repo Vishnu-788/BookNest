@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { API_ENDPOINTS } from "../../utils/api";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuthContext";
+import { Link } from "react-router-dom";
 import "./styles/auth-form.css";
 
 type FormData = {
@@ -137,7 +138,7 @@ const SignUp: React.FC = () => {
           </Form>
 
           <p className="mt-3">
-            Already have an account? <a href="/signin">Sign In</a>
+            Already have an account? <Link to="/signin">SignIn</Link>
           </p>
         </div>
 

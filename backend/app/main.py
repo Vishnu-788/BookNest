@@ -38,6 +38,8 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 async def read_root():
     return {"message": "Hello, World!"}
 
+print("Hello world")
+
 # Routers
 app.include_router(books.router, prefix="/api/v1/books", tags=["Books"])
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])

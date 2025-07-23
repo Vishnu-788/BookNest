@@ -14,19 +14,19 @@ interface BookFormData {
 }
 
 const BookCreateForm = () => {
-  const [show, setShow] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState<BookFormData>({
-    image: null as File | null,
+  const initialFormData: BookFormData = {
+    image: null,
     title: "",
     author: "",
     description: "",
     stock_count: 0,
     in_stock: true,
-  });
+  };
+  const [show, setShow] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState<BookFormData>(initialFormData);
 
   const { token } = useAuth();
-  console.log(token);
 
   const handleShow = () => setShow(true);
   const handleClose = () => setShow(false);
@@ -73,6 +73,7 @@ const BookCreateForm = () => {
       if (!response.ok) {
         setError(result.detail);
       } else {
+        setFormData(initialFormData);
         handleClose();
       }
     } catch (err) {
