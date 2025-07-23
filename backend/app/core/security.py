@@ -9,6 +9,7 @@ from app import schemas, crud
 from app.models.user import RoleEnum
 from app.database import get_db
 from app.core.config import get_settings
+from typing import Optional
 
 
 # Load environment variables
@@ -123,4 +124,14 @@ def get_reader(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Access Forbidden"
         )
+    return user
+
+
+def get_current_user_optional(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    db: Session = Depends(get_db)
+): 
+    if token is None:
+        return None
+    user = get_current_user(token, db)
     return user

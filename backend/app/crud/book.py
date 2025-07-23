@@ -9,8 +9,12 @@ def create(request: schemas.book.BookCreate, db: Session):
     db.refresh(new_book)
     return new_book
 
-def get_all(db: Session):
+def get_all_books(db: Session):
     books = db.query(models.book.Book).all()
+    return books
+
+def get_all_books_by_librarian(id: int, db: Session):
+    books = db.query(models.book.Book).filter(models.book.Book.lib_id == id).all()
     return books
 
 def get_book(id: int, db: Session):

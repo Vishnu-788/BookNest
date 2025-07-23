@@ -1,10 +1,10 @@
 from fastapi import UploadFile
-from app import schemas, crud
+from app import schemas, crud, models
 from sqlalchemy.orm import Session
 from typing import Optional
 import uuid
 import shutil
-import os
+
 
 STATIC_FOLDER = "static/images"
 
@@ -41,3 +41,9 @@ async def create_book_with_image(
     )
 
     return crud.book.create(book_data, db)
+
+def get_all_books(user: schemas.auth.UserAuthResponse | None, db: Session):
+    if user.role == models.user.RoleEnum.LIBRARIAN:
+        return crud.book.get_all_books_by_librarian(user.id, db)
+    return crud.book.get_all_books(db)
+

@@ -10,8 +10,11 @@ from typing import Annotated, List
 router = APIRouter()
 
 @router.get("/", response_model=List[schemas.book.BookResponse],status_code=status.HTTP_200_OK)
-def get_books(db: Annotated[Session, Depends(get_db)]):
-    return crud.book.get_all(db)
+def get_books(
+    db: Annotated[Session, Depends(get_db)],
+    user: Annotated[schemas.auth.UserAuthResponse | None, Depends(security.get_current_user_optional)]
+):
+    return services.book_service.get_all_books(user, db)
 
 @router.get("/{book_id}", response_model=schemas.book.BookDetailResponse, status_code=status.HTTP_200_OK)
 def get_book_by_id(book_id: int, db: Annotated[Session, Depends(get_db)]):

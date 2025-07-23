@@ -1,10 +1,22 @@
 import React, { useState } from "react";
-import { Modal, Button, Form, Row, Col } from "react-bootstrap";
+import { Modal, Button, Form, Row, Col, Alert } from "react-bootstrap";
 import "./style.css";
+import { API_ENDPOINTS } from "../../../utils/api";
+import { useAuth } from "../../../hooks/useAuthContext";
+
+interface BookFormData {
+  image: File | null;
+  title: string;
+  author: string;
+  description?: string;
+  stock_count: number;
+  in_stock: boolean;
+}
 
 const BookCreateForm = () => {
   const [show, setShow] = useState(false);
-  const [formData, setFormData] = useState({
+  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState<BookFormData>({
     image: null as File | null,
     title: "",
     author: "",
@@ -12,6 +24,9 @@ const BookCreateForm = () => {
     stock_count: 0,
     in_stock: true,
   });
+
+  const { token } = useAuth();
+  console.log(token);
 
   const handleShow = () => setShow(true);
   const handleClose = () => setShow(false);
@@ -31,10 +46,39 @@ const BookCreateForm = () => {
     setFormData((prev) => ({ ...prev, image: file }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Book Added:", formData);
-    handleClose();
+    const form = new FormData();
+    form.append("title", formData.title);
+    form.append("author", formData.author);
+    form.append("in_stock", String(formData.in_stock));
+    form.append("stock_count", String(formData.stock_count));
+    if (formData.description) {
+      form.append("description", formData.description);
+    }
+    if (formData.image) {
+      form.append("image", formData.image);
+    }
+
+    try {
+      const response = await fetch(API_ENDPOINTS.BOOK_CREATE, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: form,
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.detail);
+      } else {
+        handleClose();
+      }
+    } catch (err) {
+      setError("Something wen wrong. Try again later");
+      console.log("Error occured", err);
+    }
   };
 
   return (
@@ -52,6 +96,8 @@ const BookCreateForm = () => {
         >
           <Modal.Title>Add a New Book</Modal.Title>
         </Modal.Header>
+
+        {error && <Alert variant="danger">{error}</Alert>}
         <Modal.Body>
           <Form onSubmit={handleSubmit} className="custom-form">
             {/* Image Upload */}
