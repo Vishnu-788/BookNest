@@ -4,12 +4,12 @@ from fastapi.security import OAuth2PasswordBearer
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 from sqlalchemy.orm import Session
-import jwt
 from app import schemas, crud
-from app.models.user import RoleEnum
+from app.core.enums import RoleEnum
 from app.database import get_db
 from app.core.config import get_settings
-from typing import Optional
+import jwt
+
 
 
 # Load environment variables
