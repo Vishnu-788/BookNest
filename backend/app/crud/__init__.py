@@ -1,1 +1,1 @@
-from . import book, user
+from . import book, user, loan

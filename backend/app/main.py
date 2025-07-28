@@ -1,18 +1,13 @@
-import debugpy
-debugpy.listen(("0.0.0.0", 5678))
-print("Waiting for debugger attach...")
-debugpy.wait_for_client()
-
 import os
 from fastapi import FastAPI
 from app.database import Base, engine
-from app.routers import books, auth
+from app.routers import books, auth, loans
 from starlette.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
 
 
-app = FastAPI()
+app = FastAPI(debug=True)
 
 # Create tables
 Base.metadata.create_all(bind=engine)
@@ -50,3 +45,4 @@ async def read_root():
 # Routers
 app.include_router(books.router, prefix="/api/v1/books", tags=["Books"])
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
+app.include_router(loans.router, prefix="/api/v1/librarian", tags=["Loans"])
