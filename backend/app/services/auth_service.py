@@ -4,14 +4,15 @@ from sqlalchemy.orm import Session
 from app import crud, schemas
 from app.core import security, enums
 from datetime import timedelta
+from app.core import exceptions
 
 
 def validate_username(username: str) -> str:
     # Username constraints
     if " " in username:
-        raise ValueError("Username cannot contain spaces")
+        raise exceptions.ValidationException("Username should only contain characters, numbers, underscores")
     if not re.match(r"^[A-Za-z0-9_]+$", username):
-        raise ValueError("Username can only contain letters, numbers, and underscores")
+        raise exceptions.ValidationException("Username should only contain characters, numbers, underscores")
 
 
 """
@@ -22,18 +23,18 @@ Register the user in the User table
 def register_user(data: schemas.auth.UserCreate, db: Session) -> schemas.auth.UserAuthResponse:
     # Validate fields
     if not data.username or not data.email or not data.password:
-        raise ValueError("All fields are required")
+        raise exceptions.ValidationException("All fields are required.")
 
     data.username = data.username.lower()
     validate_username(data.username)
 
     userExists = crud.user.get_user_by_username(data.username, db)
     if userExists: 
-        raise ValueError("Username exists try another")
+        raise exceptions.ConflictException("Username already exists. Try another one.")
     
     emailExists = crud.user.get_user_by_email(data.email, db)
     if emailExists:
-        raise ValueError("Email Exists")
+        raise exceptions.ConflictException("Email already exists. Try another one.")
 
     # Hash password
     hashed_password = security.Security.hash_password(data.password)
@@ -42,7 +43,7 @@ def register_user(data: schemas.auth.UserCreate, db: Session) -> schemas.auth.Us
     user = crud.user.create(data, db)
 
     if not user:
-        raise ValueError("User creation failed")
+        raise exceptions.InternalServerError("Cannot create user")
 
     access_token_expires = timedelta(minutes=30)
     access_token = security.create_access_token(
@@ -73,8 +74,6 @@ def register_member(request: schemas.auth.MemberCreate, db: Session) -> schemas.
     )
 
     user = register_user(user_data, db)
-    if not user:
-        raise ValueError("User creation failed")
 
     memberData=schemas.auth.MemberCreate(
             user_id=user.id,
@@ -85,7 +84,7 @@ def register_member(request: schemas.auth.MemberCreate, db: Session) -> schemas.
 
     member = crud.user.create_member(memberData, db)
     if not member:
-        raise ValueError("User creation failed")
+        raise exceptions.InternalServerError("Cannot create user")
 
     return user
         
@@ -105,7 +104,7 @@ def register_librarian(request: schemas.auth.LibrarianCreate, db: Session)-> sch
 
     user = register_user(user_data, db)
     if not user:
-        pass
+        raise exceptions.InternalServerError("Cannot create user")
 
     librarianData= schemas.auth.LibrarianCreate(
         user_id=user.id,
@@ -118,7 +117,7 @@ def register_librarian(request: schemas.auth.LibrarianCreate, db: Session)-> sch
     librarian = crud.user.create_librarian(librarianData, db)
 
     if not librarian:
-        pass
+        raise exceptions.InternalServerError("Cannot create user")
 
     return user
 
@@ -137,10 +136,10 @@ def login_user(request: OAuth2PasswordRequestForm, db: Session)->schemas.auth.Us
     validate_username(request.username)
 
     if not user:
-        raise ValueError(f"{request.username} does not exist")
+        raise exceptions.NotFoundException("user not found")
 
     if not security.Security.verify_password(request.password, user.password):
-        raise ValueError("incorrect password")
+        raise exceptions.UnauthorizedException("Incorrect password")
 
     access_token_expires = timedelta(minutes=30)
     access_token = security.create_access_token(

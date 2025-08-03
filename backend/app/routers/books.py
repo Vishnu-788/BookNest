@@ -9,12 +9,18 @@ from typing import Annotated, List
 
 router = APIRouter()
 
-@router.get("/", response_model=List[schemas.book.BookResponse],status_code=status.HTTP_200_OK)
+@router.get("/" ,status_code=status.HTTP_200_OK)
 def get_books(
     db: Annotated[Session, Depends(get_db)],
-    user: Annotated[schemas.auth.UserAuthResponse | None, Depends(security.get_current_user_optional)]
 ):
-    return services.book_service.get_all_books(user, db)
+    return services.book_service.get_all_books(db)
+
+@router.get("/library")
+def get_library_books(
+    db: Annotated[Session, Depends(get_db)],
+    user: Annotated[Session, Depends(security.get_librarian)]
+):
+    return services.book_service.get_library_books(user, db)
 
 @router.get("/{book_id}", response_model=schemas.book.BookResponse, status_code=status.HTTP_200_OK)
 def get_book_by_id(book_id: int, db: Annotated[Session, Depends(get_db)]):
@@ -26,6 +32,7 @@ async def add_book(
     user: Annotated[schemas.auth.UserAuthResponse, Depends(security.get_librarian)],
     title: Annotated[str, Form()],
     author: Annotated[str, Form()],
+    genres: Annotated[List[str], Form()],
     image: UploadFile = File(...),
     description: Annotated[Optional[str], Form()] = None,
     in_stock: Annotated[Optional[bool], Form()] = None,
@@ -34,7 +41,7 @@ async def add_book(
 
 
     return await services.book_service.create_book_with_image(
-        title, author, description, in_stock, stock_count, image, db, user
+        title, author, description, in_stock, stock_count, genres, image, db, user
     )
 @router.patch("/{book_id}/stock", status_code=status.HTTP_200_OK)
 def update_book_stock(

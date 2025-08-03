@@ -1,7 +1,6 @@
 from app import schemas, crud
 from sqlalchemy.orm import Session
-from fastapi import HTTPException, status
-from app.core.result import Result
+from app.core import exceptions
 
 """
 Service layer to extract the member from the provided email and get librarian id from librarian
@@ -16,7 +15,7 @@ def create_loan(
     # get member
     member = crud.user.get_user_by_email(data.member_email, db)
     if not member:
-        return Result.fail(f"Cannot find user with email {data.member_email}", 404)
+        raise exceptions.NotFoundException(f"User with email {data.member_email} not found")
 
     loan_data = schemas.loan.LoanCreate(
         mem_id=member.id,
@@ -28,6 +27,6 @@ def create_loan(
 
     loan = crud.loan.create_loan(loan_data, db=db)
     if not loan:
-        return Result.fail("Cannot create loan entry in loan history", 502)
+        raise exceptions.InternalServerError("Trouble creating loan entry")
     
-    return Result.ok(loan, 201)
+    return loan

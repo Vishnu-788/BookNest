@@ -12,9 +12,7 @@ def create_loan(data: schemas.loan.LoanCreate, db: Session):
 
 
 def find_loan_by_id(id: int, db: Session):
-    loan_instance = (
-        db.query(models.loan.Loan).filter(models.loan.Loan.id == id).one_or_none()
-    )
+    loan_instance = db.query(models.loan.Loan).filter(models.loan.Loan.id == id).one_or_none()
     return loan_instance
 
 

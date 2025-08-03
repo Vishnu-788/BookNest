@@ -1,7 +1,25 @@
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from sqlalchemy import ForeignKey, Table, Column
 from app.database import Base
-from typing import Optional
+from typing import Optional, List
+
+book_genre = Table(
+    'book_genre',
+    Base.metadata,
+    Column('book_id', ForeignKey('books.id')),
+    Column('genre_id', ForeignKey('genres.id'))
+)
+
+
+class Genre(Base):
+    __tablename__ = "genres"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(unique=True, nullable=False)
+
+    # Relationship
+    books: Mapped[List["Book"]] = relationship(secondary=book_genre, back_populates="genres")
 
 class Book(Base):
     __tablename__ = "books"
@@ -15,5 +33,8 @@ class Book(Base):
     stock_count: Mapped[int] = mapped_column(default=1)
     img_url: Mapped[str] = mapped_column(default="Image not available")
 
-    def __repr__(self):
-        return f"Id: {self.id} title: {self.title}"
+    # Relationship
+    genres: Mapped[List[Genre]] = relationship(secondary=book_genre, back_populates="books")
+
+    
+

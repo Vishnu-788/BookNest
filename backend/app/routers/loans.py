@@ -21,20 +21,7 @@ def loan_history_entry(
     librarian: Annotated[schemas.auth.UserAuthResponse, Depends(security.get_librarian)]
 ):
     loan_entry = services.loan_services.create_loan(request, librarian=librarian, db=db)
-
-    if not loan_entry.success:
-        if loan_entry.status_code == 404:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=loan_entry.error,
-            )
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=loan_entry.error
-            )
-
-    return loan_entry.data
+    return loan_entry
 
 
 

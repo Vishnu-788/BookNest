@@ -1,9 +1,13 @@
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from app.database import Base, engine
 from app.routers import books, auth, loans
 from starlette.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from app.core.exceptions import AppException  # Assuming your exception file is in app/core/exceptions.py
+from app.core.logger import logger  # If you're logging in a separate file like logger.py
+
 
 
 
@@ -35,6 +39,14 @@ os.makedirs(STATIC_DIR, exist_ok=True)
 
 # Mount static
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+@app.exception_handler(AppException)
+async def app_exception_handler(request: Request, exc: AppException):
+    logger.error(f"[{request.url.path}] -> {exc.message}")
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"error": exc.message}
+    )
 
 @app.get("/")
 async def read_root():

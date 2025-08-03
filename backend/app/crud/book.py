@@ -1,8 +1,12 @@
-from fastapi import status, HTTPException
 from sqlalchemy.orm import Session
 from app import schemas, models
+from app.core import exceptions
+from typing import List
 
 
+"""
+Book realted model crud operations
+"""
 def create(data: schemas.book.BookCreate, db: Session):
     new_book = models.book.Book(**data.model_dump())
     db.add(new_book)
@@ -24,9 +28,7 @@ def get_all_books_by_librarian(id: int, db: Session):
 def get_book(id: int, db: Session):
     book = db.query(models.book.Book).filter(models.book.Book.id == id).first()
     if not book:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
-        )
+        raise exceptions.NotFoundException(f"Book with id: {id} doesnt exist")
     return book
 
 
@@ -37,3 +39,18 @@ def update_stock(id: int, request: schemas.book.StockUpdate, db: Session):
     db.commit()
     db.refresh(book)
     return book
+
+""" 
+Genre related table crud operations
+"""
+
+def get_or_create_genre(genre_names: List[str], db: Session) -> List[str]:
+    genres=[]
+    for name in genre_names:
+        genre = db.query(models.book.Genre).filter(models.book.Genre.name == name).first()
+        if not genre:
+            genre=models.book.Genre(name=name)
+            db.add(genre)
+            db.flush()
+        genres.append(genre)
+    return genres

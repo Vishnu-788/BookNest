@@ -23,6 +23,7 @@ env/
 
 # Logs
 *.log
+logs/
 
 #ignore the static files
 static/

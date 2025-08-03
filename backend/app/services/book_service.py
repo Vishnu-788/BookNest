@@ -1,7 +1,8 @@
 from fastapi import UploadFile
-from app import schemas, crud, models
+from app import schemas, crud
+from app.core.enums import RoleEnum
 from sqlalchemy.orm import Session
-from typing import Optional
+from typing import Optional, List
 import uuid
 import shutil
 
@@ -14,6 +15,7 @@ async def create_book_with_image(
     description: Optional[str],
     in_stock: Optional[bool],
     stock_count: Optional[int],
+    genres: List[str],
     image: UploadFile,
     db: Session,
     user: schemas.auth.UserAuthResponse
@@ -29,6 +31,7 @@ async def create_book_with_image(
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(image.file, buffer)
 
+    genres = crud.book.get_or_create_genre(genres, db)
     # Creating a pydantic model here
     book_data = schemas.book.BookCreate(
         lib_id=user.id,
@@ -37,13 +40,51 @@ async def create_book_with_image(
         author=author,
         in_stock=in_stock,
         stock_count=stock_count,
+        genres=genres,
         img_url=f"/static/images/{filename}"
     )
 
     return crud.book.create(book_data, db)
 
-def get_all_books(user: schemas.auth.UserAuthResponse | None, db: Session):
-    if user and user.role == models.user.RoleEnum.LIBRARIAN:
-        return crud.book.get_all_books_by_librarian(user.id, db)
-    return crud.book.get_all_books(db)
+def flatten_genres(genres):
+    """
+    flaten the Genre(SQL alchemy object) to list of strings with only genre name
+    """
+    genres_list = [genre.name for genre in genres]
+    return genres_list
+    
+
+def get_library_books(user: schemas.auth.UserAuthResponse, db: Session) -> schemas.book.BookResponse:
+    books = crud.book.get_all_books_by_librarian(user.id, db)
+    results = []
+    for book in books:
+        results.append({
+            "id": book.id,
+            "lib_id": book.lib_id,
+            "title": book.title,
+            "author": book.author,
+            "description": book.description,
+            "img_url": book.img_url,
+            "genres": flatten_genres(book.genres),
+        })
+    return results
+
+    
+
+def get_all_books(db: Session) -> schemas.book.BookResponse:
+    books = crud.book.get_all_books(db)
+    results = []
+    for book in books:
+        results.append({
+            "id": book.id,
+            "lib_id": book.lib_id,
+            "title": book.title,
+            "author": book.author,
+            "description": book.description,
+            "img_url": book.img_url,
+            "genres": flatten_genres(book.genres),
+        })
+
+    return results
+
 
